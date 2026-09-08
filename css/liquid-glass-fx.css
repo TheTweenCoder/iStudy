@@ -1,0 +1,267 @@
+/* ==========================================================================
+   Liquid Glass FX v2 — subtler, cleaner
+   Loaded AFTER main.css / dashboard.css / responsive.css.
+
+   Design intent: glass should read in the *material*, not in extra effects
+   layered on top. This file trims the previous version down to three things
+   that actually sell "glass" without adding visual noise —
+     1. one soft, low-opacity light source (no colored fringing)
+     2. a hairline-thin refracted edge, barely-there
+     3. calmer, shorter interaction motion
+   — plus a simplified, quieter navbar.
+   ========================================================================== */
+
+/* ----- 1. Pointer-tracked light source -----
+   Much lower opacity than v1, smaller falloff, no blend-mode tricks that
+   fought the base frost. This should read as "the light moved", not as a
+   visible gradient. */
+.card,
+.modal,
+.auth-card,
+.suggest-card,
+.pomodoro-widget,
+.task-card {
+  --mx: 50%;
+  --my: 0%;
+  background-image: radial-gradient(
+    280px circle at var(--mx) var(--my),
+    rgba(255, 255, 255, 0.05),
+    rgba(255, 255, 255, 0) 60%
+  );
+}
+[data-theme="light"] .card,
+[data-theme="light"] .modal,
+[data-theme="light"] .auth-card,
+[data-theme="light"] .suggest-card,
+[data-theme="light"] .pomodoro-widget,
+[data-theme="light"] .task-card {
+  background-image: radial-gradient(
+    280px circle at var(--mx) var(--my),
+    rgba(255, 255, 255, 0.35),
+    rgba(255, 255, 255, 0) 60%
+  );
+}
+
+/* ----- 2. Refracted edge — hairline only -----
+   Kept to the surfaces that read as genuine "glass objects" (cards, modals,
+   the auth card). The navbar and topbar are chrome, not glass panes — see
+   the simplified-navbar section below, which intentionally skips this. */
+.card,
+.modal,
+.auth-card,
+.suggest-card,
+.pomodoro-widget {
+  position: relative;
+  isolation: isolate;
+}
+.card::after,
+.modal::after,
+.auth-card::after,
+.suggest-card::after,
+.pomodoro-widget::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(
+    140deg,
+    rgba(255, 255, 255, 0.28) 0%,
+    rgba(255, 255, 255, 0) 40%,
+    rgba(255, 255, 255, 0) 65%,
+    rgba(255, 255, 255, 0.14) 100%
+  );
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  filter: url(#liquid-lens);
+  opacity: 0.5;
+  pointer-events: none;
+  z-index: 3;
+}
+
+/* ----- 3. Calmer interaction motion -----
+   Shorter travel, no overshoot bounce — a light press, not a squish. */
+.btn {
+  transition:
+    background var(--ease),
+    border-color var(--ease),
+    transform 140ms ease,
+    opacity var(--ease);
+}
+.btn:active:not(:disabled) { transform: scale(0.97); }
+
+.task-checkbox { transition: color var(--ease), background var(--ease), transform 140ms ease; }
+
+@media (prefers-reduced-motion: reduce) {
+  .btn, .task-checkbox { transition-duration: 0.01ms !important; }
+}
+@media (prefers-reduced-motion: reduce), (update: slow) {
+  .card::after, .modal::after, .auth-card::after,
+  .suggest-card::after, .pomodoro-widget::after { filter: none; }
+}
+
+/* ==========================================================================
+   Simplified navbar
+   One flat frosted layer, one quiet active state, generous spacing.
+   No borders, no inner shadows, no competing gradients.
+   ========================================================================== */
+
+.sidebar {
+  background: rgba(20, 20, 22, 0.6);
+  border-right: 1px solid rgba(255, 255, 255, 0.06);
+  box-shadow: none;
+}
+@supports (backdrop-filter: blur(28px)) {
+  .sidebar {
+    background: rgba(255, 255, 255, 0.04);
+    backdrop-filter: blur(28px) saturate(140%);
+    -webkit-backdrop-filter: blur(28px) saturate(140%);
+  }
+}
+[data-theme="light"] .sidebar { background: rgba(255, 255, 255, 0.5); }
+
+.sidebar-header {
+  border-bottom: none;
+  padding: 0 12px 0 16px;
+  height: 68px;
+}
+.sidebar-logo-img { box-shadow: none; border-radius: 9px; }
+.sidebar-brand { font-weight: 600; letter-spacing: -0.02em; }
+
+.sidebar-nav { padding: 10px 10px; }
+
+/* Apple.com-style vertical nav: flat text, no filled active box — the
+   current item reads through weight/color and a hairline leading accent,
+   the way apple.com's own global nav marks the current section with a
+   small dot rather than a highlighted pill. */
+.sidebar .nav-item {
+  position: relative;
+  padding: 9px 12px 9px 18px;
+  border-radius: 8px;
+  border: none;
+  background: none;
+  font-size: 13.5px;
+  font-weight: 400;
+  letter-spacing: -0.005em;
+  color: rgba(245, 245, 247, 0.58);
+  transition: color 140ms ease, background 140ms ease;
+}
+.sidebar .nav-item:hover { background: rgba(255, 255, 255, 0.04); color: rgba(245, 245, 247, 0.88); }
+.sidebar .nav-item.active {
+  background: none;
+  color: #fff;
+  font-weight: 500;
+  box-shadow: none;
+}
+.sidebar .nav-item.active::before {
+  content: '';
+  position: absolute;
+  left: 4px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 3px;
+  height: 13px;
+  border-radius: 2px;
+  background: #fff;
+  opacity: 0.85;
+}
+[data-theme="light"] .sidebar .nav-item { color: rgba(29, 29, 31, 0.5); }
+[data-theme="light"] .sidebar .nav-item:hover { color: rgba(29, 29, 31, 0.85); }
+[data-theme="light"] .sidebar .nav-item.active { color: #1d1d1f; }
+[data-theme="light"] .sidebar .nav-item.active::before { background: #1d1d1f; }
+
+.sidebar .nav-item svg { width: 17px; height: 17px; opacity: 0.5; stroke-width: 1.6; }
+.sidebar .nav-item.active svg { opacity: 0.95; }
+
+.sidebar-footer { border-top: 1px solid rgba(255, 255, 255, 0.06); padding: 10px; margin-top: auto; }
+.sidebar-footer .nav-item { color: rgba(245, 245, 247, 0.5); }
+
+.sidebar-collapse-btn {
+  margin-left: auto;
+  width: 26px;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 7px;
+  color: var(--text-3);
+  flex-shrink: 0;
+  transition: background 140ms ease, color 140ms ease;
+}
+.sidebar-collapse-btn:hover { background: rgba(255, 255, 255, 0.06); color: var(--text); }
+.sidebar-collapse-btn svg { width: 14px; height: 14px; }
+
+.sidebar-reveal-btn {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  color: var(--text-2);
+  margin-right: 2px;
+  flex-shrink: 0;
+  transition: background 140ms ease, color 140ms ease;
+}
+.sidebar-reveal-btn:hover { background: rgba(255, 255, 255, 0.06); color: var(--text); }
+.sidebar-reveal-btn svg { width: 16px; height: 16px; }
+body.sidebar-collapsed .sidebar-reveal-btn { display: inline-flex; }
+
+/* Collapsing the sidebar reuses the same off-canvas transform + margin
+   collapse the app already transitions smoothly on mobile, so no new
+   transition timing is introduced here. */
+body.sidebar-collapsed .sidebar { transform: translateX(-100%); }
+body.sidebar-collapsed .main-content { margin-left: 0; }
+
+/* Topbar: one clean line, no extra shadow layers */
+.topbar {
+  background: rgba(5, 5, 5, 0.4);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  box-shadow: none;
+}
+@supports (backdrop-filter: blur(20px)) {
+  .topbar {
+    background: rgba(5, 5, 5, 0.32);
+    backdrop-filter: blur(20px) saturate(140%);
+    -webkit-backdrop-filter: blur(20px) saturate(140%);
+  }
+}
+
+/* Mobile bottom nav: same quiet treatment */
+.bottom-nav { box-shadow: 0 4px 24px rgba(0, 0, 0, 0.22); }
+.bottom-nav-item.active { color: var(--text); }
+
+/* ==========================================================================
+   Scroll parallax — subtle 3D spatial layering
+   liquid-glass-parallax.js sets --depth (-1 at top of viewport to 1 at the
+   bottom) on each glass panel as it scrolls through. A shared perspective
+   on the scroll container turns that into a faint tilt + lift, so panels
+   read as layered sheets of glass rather than flat cards moving in lockstep.
+   Kept small on purpose — this is a depth cue, not a scroll effect people
+   should consciously notice.
+   ========================================================================== */
+
+.content-area {
+  perspective: 1400px;
+}
+
+.card,
+.suggest-card,
+.pomodoro-widget,
+.task-card,
+.auth-card {
+  --depth: 0;
+  transform: translateY(calc(var(--depth) * 5px)) rotateX(calc(var(--depth) * -1deg));
+  transform-style: preserve-3d;
+  transition: transform 120ms linear;
+  will-change: transform;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .content-area { perspective: none; }
+  .card, .suggest-card, .pomodoro-widget, .task-card, .auth-card {
+    transform: none !important;
+    transition: none;
+  }
+}

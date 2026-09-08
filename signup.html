@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign Up — StudyApp</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/dashboard.css">
+  <link rel="stylesheet" href="css/responsive.css">
+  <link rel="stylesheet" href="css/liquid-glass-fx.css">
+</head>
+<body>
+  <svg style="position:absolute;width:0;height:0;overflow:hidden" aria-hidden="true" focusable="false">
+    <defs>
+      <filter id="liquid-lens" x="-30%" y="-30%" width="160%" height="160%">
+        <feTurbulence type="fractalNoise" baseFrequency="0.012 0.02" numOctaves="2" seed="7" result="noise"/>
+        <feDisplacementMap in="SourceGraphic" in2="noise" scale="7" xChannelSelector="R" yChannelSelector="G"/>
+      </filter>
+    </defs>
+  </svg>
+  <div class="auth-page">
+    <div class="auth-card">
+      <div class="auth-logo">
+        <div class="logo-icon">S</div>
+        <h1>Create Account</h1>
+        <p>Start organizing your studies</p>
+      </div>
+      <div class="auth-error" id="signup-error"></div>
+      <form id="signup-form">
+        <div class="form-group">
+          <label class="form-label">Name</label>
+          <input class="form-input" type="text" id="signup-name" placeholder="Your name">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Username *</label>
+          <input class="form-input" type="text" id="signup-username" required autocomplete="username" placeholder="Choose a username">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Email</label>
+          <input class="form-input" type="email" id="signup-email" placeholder="optional@email.com">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Password *</label>
+          <input class="form-input" type="password" id="signup-password" required autocomplete="new-password" placeholder="Min 4 characters">
+        </div>
+        <button type="submit" class="btn btn-primary w-full btn-lg">Sign Up</button>
+      </form>
+      <div class="auth-footer">
+        Already have an account? <a href="login.html">Log in</a>
+      </div>
+    </div>
+  </div>
+  <script src="js/storage.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/liquid-glass-fx.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      if (Auth.isLoggedIn()) {
+        window.location.href = 'index.html';
+        return;
+      }
+      document.getElementById('signup-form').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const result = Auth.signup(
+          document.getElementById('signup-username').value.trim(),
+          document.getElementById('signup-password').value,
+          document.getElementById('signup-name').value.trim(),
+          document.getElementById('signup-email').value.trim()
+        );
+        if (result.success) {
+          window.location.href = 'index.html';
+        } else {
+          const err = document.getElementById('signup-error');
+          err.textContent = result.error;
+          err.classList.add('show');
+        }
+      });
+    });
+  </script>
+</body>
+</html>
